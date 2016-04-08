@@ -20,8 +20,8 @@ namespace G120.SocketServer
             const string ipAddress = "192.168.1.115";
             const string subnetMask = "255.255.255.0";
             const string gatewayAddress = "192.168.1.1";
-            const string ssid = "BigFont";
-            const string password = "NutButter3";
+            const string ssid = "";
+            const string password = "";
 
             var networkInterface = GetNetworkInterface(preferredType);
 
