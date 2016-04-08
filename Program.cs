@@ -31,10 +31,6 @@ namespace G120.SocketServer
 
             wiFiRs9110.EnableStaticIP(IpAddress, SubnetMask, GatewayAddress);
             
-            // wiFiRs9110.EnableDhcp();
-
-            wiFiRs9110.Dump();
-
             ConnectWiFi(wiFiRs9110, Bigfont, Nutbutter3);
 
             // this never fires
@@ -42,12 +38,11 @@ namespace G120.SocketServer
             {
                 ("NetworkAvailabilityChanged. IsAvailable is now " + args.IsAvailable).Dump();
 
-                if (args.IsAvailable)
-                {
-                    var threadStart = new ThreadStart(() => ConnectSocket(IpAddress, Port));
-                    var thread = new Thread(threadStart);
-                    thread.Start();
-                }
+                if (!args.IsAvailable) return;
+
+                var threadStart = new ThreadStart(() => ConnectSocket(IpAddress, Port));
+                var thread = new Thread(threadStart);
+                thread.Start();
             };
 
             // this throws
@@ -62,7 +57,7 @@ namespace G120.SocketServer
                 ex.ToString().Dump();
             }
 
-            // we wait forever to connect
+            // wait to connect
             var i = 0;
             while (true)
             {
@@ -102,6 +97,17 @@ namespace G120.SocketServer
             serverSocket.Bind(localEndPoint);
 
             serverSocket.Listen(socketBacklog);
+
+            ("#####").Dump();
+            ("#####").Dump();
+            ("#####").Dump();
+
+            ("Socket connection succeeded!").Dump();
+            ("Navigate to " + ipAddress + ":" + port + " in your web browser.").Dump();
+
+            ("#####").Dump();
+            ("#####").Dump();
+            ("#####").Dump();
 
             while (true)
             {
