@@ -20,8 +20,8 @@ namespace G120.SocketServer
             const string ipAddress = "192.168.1.115";
             const string subnetMask = "255.255.255.0";
             const string gatewayAddress = "192.168.1.1";
-            const string ssid = "";
-            const string password = "";
+            const string ssid = "BigFont";
+            const string password = "NutButter3";
 
             var networkInterface = GetNetworkInterface(preferredType);
 
@@ -126,23 +126,18 @@ namespace G120.SocketServer
             builder.ToString().Dump();
         }
 
-        public static void Dump(this WiFiRS9110 networkInterface)
+        public static void Dump(this WiFiRS9110 wiFiRs9110)
         {
             var builder = new StringBuilder();
 
             builder.AppendLine("WiFiRS9110");
 
-            foreach (var dns in networkInterface.DnsAddresses)
-            {
-                builder.AppendLine("DnsAddress: " + dns);
-            }
-            builder.AppendLine("GatewayAddress:" + networkInterface.GatewayAddress);
-            builder.AppendLine("IPAddress:" + networkInterface.IPAddress);
-            builder.AppendLine("IsDhcpEnabled:" + networkInterface.IsDhcpEnabled);
-            builder.AppendLine("IsDynamicDnsEnabled:" + networkInterface.IsDynamicDnsEnabled);
-            builder.AppendLine("NetworkInterfaceType:" + networkInterface.NetworkInterfaceType);
-            builder.AppendLine("PhysicalAddress:" + ByteArrayToHex(networkInterface.PhysicalAddress, ":"));
-            builder.AppendLine("SubnetMask:" + networkInterface.SubnetMask);
+            wiFiRs9110.NetworkInterface.Dump();
+
+            builder.AppendLine("LinkConnected:" + wiFiRs9110.LinkConnected);
+            builder.AppendLine("ActiveNetwork:" + wiFiRs9110.ActiveNetwork);
+            builder.AppendLine("NetworkIsAvailable:" + wiFiRs9110.NetworkIsAvailable);
+            builder.AppendLine("Opened:" + wiFiRs9110.Opened);
 
             builder.ToString().Dump();
         }
@@ -150,6 +145,8 @@ namespace G120.SocketServer
         public static void Dump(this string output)
         {
             Debug.Print(output);
+            Debug.Print("---------------------");
+            Debug.Print("---------------------");
         }
 
         public static string ByteArrayToHex(this byte[] byteArray, string separator)
