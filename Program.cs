@@ -12,19 +12,15 @@ namespace G120.SocketServer
 {
     public class Program
     {
+        private const int Port = 12000;
+        private const string IpAddress = "192.168.1.115";
+        private const string SubnetMask = "255.255.255.0";
+        private const string GatewayAddress = "192.168.1.1";
+        private const string Bigfont = "BigFont";
+        private const string Nutbutter3 = "NutButter3";
+
         public static void Main()
         {
-            const NetworkInterfaceType preferredType = NetworkInterfaceType.Wireless80211;
-
-            const int port = 12000;
-            const string ipAddress = "192.168.1.115";
-            const string subnetMask = "255.255.255.0";
-            const string gatewayAddress = "192.168.1.1";
-            const string ssid = "BigFont";
-            const string password = "NutButter3";
-
-            var networkInterface = GetNetworkInterface(preferredType);
-
             var wiFiRs9110 = new WiFiRS9110(
                 SPI.SPI_module.SPI2,
                 GHI.Pins.G120.P1_10,
@@ -32,12 +28,14 @@ namespace G120.SocketServer
                 GHI.Pins.G120.P1_9, 4000);
 
             wiFiRs9110.Open(); // what does this do?
-            wiFiRs9110.EnableStaticIP(ipAddress, subnetMask, gatewayAddress);
 
-            networkInterface.Dump();
+            wiFiRs9110.EnableStaticIP(IpAddress, SubnetMask, GatewayAddress);
+            
+            // wiFiRs9110.EnableDhcp();
+
             wiFiRs9110.Dump();
 
-            ConnectWiFi(wiFiRs9110, ssid, password);
+            ConnectWiFi(wiFiRs9110, Bigfont, Nutbutter3);
 
             // this never fires
             NetworkChange.NetworkAvailabilityChanged += (sender, args) =>
@@ -46,14 +44,18 @@ namespace G120.SocketServer
 
                 if (args.IsAvailable)
                 {
-                    ConnectSocket(ipAddress, port);
+                    var threadStart = new ThreadStart(() => ConnectSocket(IpAddress, Port));
+                    var thread = new Thread(threadStart);
+                    thread.Start();
                 }
             };
 
             // this throws
             try
             {
-                ConnectSocket(ipAddress, port);
+                var threadStart = new ThreadStart(() => ConnectSocket(IpAddress, Port));
+                var thread = new Thread(threadStart);
+                thread.Start();
             }
             catch (Exception ex)
             {
@@ -64,25 +66,11 @@ namespace G120.SocketServer
             var i = 0;
             while (true)
             {
+                Thread.Sleep(5000);
                 ("Waiting count " + i++).Dump();
-                Thread.Sleep(1000);
+             
+                wiFiRs9110.Dump();
             }
-        }
-
-        private static NetworkInterface GetNetworkInterface(NetworkInterfaceType preferredType)
-        {
-            NetworkInterface networkIntefaceToUse = null;
-            foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                networkIntefaceToUse = nic;
-
-                if (nic.NetworkInterfaceType == preferredType)
-                {
-                    break;
-                }
-            }
-
-            return networkIntefaceToUse;
         }
 
         private static void ConnectWiFi(WiFiRS9110 wifiRs9110, string ssid, string password)
@@ -100,11 +88,11 @@ namespace G120.SocketServer
             wifiRs9110.Join(ssid, password);
         }
 
-        private static void ConnectSocket(string internalIpAddress, int internalPort)
+        private static void ConnectSocket(string ipAddress, int port)
         {
             const int socketBacklog = 25;
 
-            var localEndPoint = new IPEndPoint(IPAddress.Parse(internalIpAddress), internalPort);
+            var localEndPoint = new IPEndPoint(IPAddress.Parse(ipAddress), port);
 
             var serverSocket = new Socket(
                 AddressFamily.InterNetwork,
