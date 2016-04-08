@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -39,9 +39,34 @@ namespace G120.SocketServer
 
             ConnectWiFi(wiFiRs9110, ssid, password);
 
-            ConnectSocket(ipAddress, port);
+            // this never fires
+            NetworkChange.NetworkAvailabilityChanged += (sender, args) =>
+            {
+                ("NetworkAvailabilityChanged. IsAvailable is now " + args.IsAvailable).Dump();
 
-            Debugger.Break();
+                if (args.IsAvailable)
+                {
+                    ConnectSocket(ipAddress, port);
+                }
+            };
+
+            // this throws
+            try
+            {
+                ConnectSocket(ipAddress, port);
+            }
+            catch (Exception ex)
+            {
+                ex.ToString().Dump();
+            }
+
+            // we wait forever to connect
+            var i = 0;
+            while (true)
+            {
+                ("Waiting count " + i++).Dump();
+                Thread.Sleep(1000);
+            }
         }
 
         private static NetworkInterface GetNetworkInterface(NetworkInterfaceType preferredType)
@@ -145,8 +170,6 @@ namespace G120.SocketServer
         public static void Dump(this string output)
         {
             Debug.Print(output);
-            Debug.Print("---------------------");
-            Debug.Print("---------------------");
         }
 
         public static string ByteArrayToHex(this byte[] byteArray, string separator)
