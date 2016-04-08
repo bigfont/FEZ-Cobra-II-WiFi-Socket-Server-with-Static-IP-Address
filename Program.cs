@@ -33,7 +33,6 @@ namespace G120.SocketServer
             
             ConnectWiFi(wiFiRs9110, Bigfont, Nutbutter3);
 
-            // this never fires
             NetworkChange.NetworkAvailabilityChanged += (sender, args) =>
             {
                 ("NetworkAvailabilityChanged. IsAvailable is now " + args.IsAvailable).Dump();
@@ -45,19 +44,18 @@ namespace G120.SocketServer
                 thread.Start();
             };
 
-            // this throws
             try
             {
                 var threadStart = new ThreadStart(() => ConnectSocket(IpAddress, Port));
                 var thread = new Thread(threadStart);
                 thread.Start();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ex.ToString().Dump();
+                ("We expect this to throw because the WiFi is not yet connected.").Dump();
             }
 
-            // wait to connect
+            // wait
             var i = 0;
             while (true)
             {
